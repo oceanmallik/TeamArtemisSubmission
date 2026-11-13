@@ -191,6 +191,40 @@ footer {
   background-color: transparent;
 }
 
+/* Guidance Mode Badges */
+.badge-mode {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  line-height: 1.2;
+}
+
+.badge-mode-ask-earth,
+.badge-mode.mode-ask-earth {
+  color: var(--cyan);
+  border: 1px solid var(--cyan);
+  background-color: rgba(92, 225, 230, 0.1);
+}
+
+.badge-mode-parallel,
+.badge-mode.mode-parallel {
+  color: var(--amber);
+  border: 1px solid var(--amber);
+  background-color: rgba(255, 176, 32, 0.1);
+}
+
+.badge-mode-autonomous,
+.badge-mode.mode-autonomous {
+  color: var(--red);
+  border: 1px solid var(--red);
+  background-color: rgba(252, 61, 33, 0.1);
+}
+
 /* Alert List & Cards */
 .alert-card {
   background-color: rgba(13, 18, 32, 0.6);
@@ -322,6 +356,57 @@ footer {
   font-size: 0.85rem;
   color: var(--dim);
   line-height: 1.4;
+}
+
+/* Recommended Next Steps / Guidance Block */
+.alert-guidance {
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.guidance-title {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.guidance-headline {
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.guidance-steps {
+  margin: 8px 0 10px 20px;
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--dim);
+  line-height: 1.5;
+}
+
+.guidance-steps li {
+  margin-bottom: 4px;
+}
+
+.guidance-note {
+  margin: 6px 0;
+  font-size: 0.8rem;
+  color: var(--amber);
+  font-style: italic;
+}
+
+.guidance-disclaimer {
+  font-size: 0.75rem;
+  color: var(--dim);
+  font-style: italic;
+  margin-top: 6px;
 }
 
 /* Action Buttons */

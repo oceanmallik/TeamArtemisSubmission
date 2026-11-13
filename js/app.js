@@ -1,6 +1,7 @@
 let crewData = null;
 const deliveredDownlinks = [];
 let commsIntervalStarted = false;
+let medicalOfficerAffected = false;
 
 const SIGNAL_NAMES = {
   hr: "Heart rate",
@@ -20,6 +21,77 @@ function formatCountdown(sec) {
   return `${m}m ${String(s).padStart(2, "0")}s`;
 }
 
+function renderGuidanceBlock(container) {
+  if (!container) return;
+  const comms = window.AegisComms;
+  const delayMin = comms && comms.state ? comms.state.delayMin : 12;
+  const blackout = comms && comms.state ? comms.state.blackout : false;
+
+  const guidanceFn =
+    (window.AegisGuidance && window.AegisGuidance.getGuidance) ||
+    (typeof AegisGuidance !== "undefined" && AegisGuidance.getGuidance);
+
+  if (typeof guidanceFn !== "function") return;
+
+  const guidance = guidanceFn({
+    delayMin,
+    blackout,
+    medicalOfficerAffected,
+  });
+
+  if (!guidance) return;
+
+  container.innerHTML = "";
+
+  const titleEl = document.createElement("h4");
+  titleEl.className = "guidance-title";
+  titleEl.textContent = "Recommended next steps";
+  container.appendChild(titleEl);
+
+  const headlineEl = document.createElement("p");
+  headlineEl.className = "guidance-headline";
+
+  const modeBadge = document.createElement("span");
+  modeBadge.className = `badge badge-mode badge-mode-${guidance.mode} mode-${guidance.mode}`;
+  modeBadge.textContent = guidance.mode;
+
+  const headlineText = document.createElement("span");
+  headlineText.className = "guidance-headline-text";
+  headlineText.textContent = guidance.headline;
+
+  headlineEl.appendChild(modeBadge);
+  headlineEl.appendChild(headlineText);
+  container.appendChild(headlineEl);
+
+  if (guidance.steps && Array.isArray(guidance.steps)) {
+    const list = document.createElement("ol");
+    list.className = "guidance-steps";
+    guidance.steps.forEach((step) => {
+      const li = document.createElement("li");
+      li.textContent = step;
+      list.appendChild(li);
+    });
+    container.appendChild(list);
+  }
+
+  if (guidance.note) {
+    const noteEl = document.createElement("p");
+    noteEl.className = "guidance-note";
+    noteEl.textContent = guidance.note;
+    container.appendChild(noteEl);
+  }
+
+  const disclaimer = document.createElement("div");
+  disclaimer.className = "guidance-disclaimer";
+  disclaimer.textContent = "Decision support only. Not medical advice.";
+  container.appendChild(disclaimer);
+}
+
+function updateGuidanceBlocks() {
+  const blocks = document.querySelectorAll(".alert-guidance");
+  blocks.forEach((b) => renderGuidanceBlock(b));
+}
+
 function renderComms() {
   const comms = window.AegisComms;
   if (!comms) return;
@@ -37,6 +109,7 @@ function renderComms() {
 
   let delayInput = document.getElementById("comms-delay");
   let blackoutInput = document.getElementById("comms-blackout");
+  let medicalOfficerInput = document.getElementById("comms-medical-officer");
   let speedSelect = document.getElementById("comms-speed");
   let delayDisplay = document.getElementById("comms-delay-display");
   let pendingList = document.getElementById("comms-pending-list");
@@ -58,6 +131,10 @@ function renderComms() {
             Simulate blackout
           </label>
           <label>
+            <input type="checkbox" id="comms-medical-officer" ${medicalOfficerAffected ? "checked" : ""}>
+            Crew medical officer is the affected crew member
+          </label>
+          <label>
             Demo speed:
             <select id="comms-speed" class="comms-select">
               <option value="1" ${comms.state.speed === 1 ? "selected" : ""}>1x</option>
@@ -75,6 +152,7 @@ function renderComms() {
 
     delayInput = document.getElementById("comms-delay");
     blackoutInput = document.getElementById("comms-blackout");
+    medicalOfficerInput = document.getElementById("comms-medical-officer");
     speedSelect = document.getElementById("comms-speed");
     delayDisplay = document.getElementById("comms-delay-display");
     pendingList = document.getElementById("comms-pending-list");
@@ -84,12 +162,21 @@ function renderComms() {
       const val = parseInt(e.target.value, 10);
       comms.setDelay(val);
       updateDelayDisplay();
+      updateGuidanceBlocks();
     });
 
     blackoutInput.addEventListener("change", (e) => {
       comms.setBlackout(e.target.checked);
       renderComms();
+      updateGuidanceBlocks();
     });
+
+    if (medicalOfficerInput) {
+      medicalOfficerInput.addEventListener("change", (e) => {
+        medicalOfficerAffected = e.target.checked;
+        updateGuidanceBlocks();
+      });
+    }
 
     speedSelect.addEventListener("change", (e) => {
       comms.setSpeed(Number(e.target.value));
@@ -471,6 +558,14 @@ function render(member) {
         const status = store && typeof store.getStatus === "function"
           ? store.getStatus(member.id, alert.day)
           : null;
+
+        // Recommended next steps (only on undecided alert cards)
+        if (!status) {
+          const guidanceContainer = document.createElement("div");
+          guidanceContainer.className = "alert-guidance";
+          renderGuidanceBlock(guidanceContainer);
+          card.appendChild(guidanceContainer);
+        }
 
         const actionsDiv = document.createElement("div");
         actionsDiv.className = "alert-actions";
