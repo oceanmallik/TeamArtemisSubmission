@@ -1,4 +1,6 @@
 let crewData = null;
+const deliveredDownlinks = [];
+let commsIntervalStarted = false;
 
 const SIGNAL_NAMES = {
   hr: "Heart rate",
@@ -10,6 +12,182 @@ const SIGNAL_NAMES = {
   mood: "Mood",
   activity: "Activity",
 };
+
+function formatCountdown(sec) {
+  if (sec === null || sec === undefined) return "--";
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}m ${String(s).padStart(2, "0")}s`;
+}
+
+function renderComms() {
+  const comms = window.AegisComms;
+  if (!comms) return;
+
+  // Update link badge
+  const linkBadge = document.getElementById("link-badge");
+  if (linkBadge) {
+    const isBlackout = comms.status() === "blackout";
+    linkBadge.textContent = isBlackout ? "Blackout" : "Connected";
+    linkBadge.className = isBlackout ? "link-blackout" : "link-connected";
+  }
+
+  const commsBody = document.getElementById("comms-body");
+  if (!commsBody) return;
+
+  let delayInput = document.getElementById("comms-delay");
+  let blackoutInput = document.getElementById("comms-blackout");
+  let speedSelect = document.getElementById("comms-speed");
+  let delayDisplay = document.getElementById("comms-delay-display");
+  let pendingList = document.getElementById("comms-pending-list");
+  let deliveredList = document.getElementById("comms-delivered-list");
+
+  if (!delayInput) {
+    commsBody.innerHTML = `
+      <div class="comms-controls">
+        <div class="comms-slider-container">
+          <div class="comms-slider-header">
+            <span>One-way delay</span>
+            <span id="comms-delay-display" class="comms-delay-values"></span>
+          </div>
+          <input type="range" id="comms-delay" min="3" max="22" value="${comms.state.delayMin}">
+        </div>
+        <div class="comms-toggles">
+          <label>
+            <input type="checkbox" id="comms-blackout" ${comms.state.blackout ? "checked" : ""}>
+            Simulate blackout
+          </label>
+          <label>
+            Demo speed:
+            <select id="comms-speed" class="comms-select">
+              <option value="1" ${comms.state.speed === 1 ? "selected" : ""}>1x</option>
+              <option value="60" ${comms.state.speed === 60 ? "selected" : ""}>60x</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="comms-subheading">Pending downlinks</div>
+      <ul id="comms-pending-list" class="comms-list"></ul>
+      <div class="comms-subheading">Delivered downlinks</div>
+      <ul id="comms-delivered-list" class="comms-list"></ul>
+      <p class="comms-note">Local analysis active. All monitoring works without an Earth link.</p>
+    `;
+
+    delayInput = document.getElementById("comms-delay");
+    blackoutInput = document.getElementById("comms-blackout");
+    speedSelect = document.getElementById("comms-speed");
+    delayDisplay = document.getElementById("comms-delay-display");
+    pendingList = document.getElementById("comms-pending-list");
+    deliveredList = document.getElementById("comms-delivered-list");
+
+    delayInput.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value, 10);
+      comms.setDelay(val);
+      updateDelayDisplay();
+    });
+
+    blackoutInput.addEventListener("change", (e) => {
+      comms.setBlackout(e.target.checked);
+      renderComms();
+    });
+
+    speedSelect.addEventListener("change", (e) => {
+      comms.setSpeed(Number(e.target.value));
+      renderComms();
+    });
+  }
+
+  function updateDelayDisplay() {
+    if (delayDisplay) {
+      delayDisplay.textContent = `One-way: ${comms.state.delayMin} min | Round-trip: ${comms.roundTripMin()} min`;
+    }
+  }
+
+  updateDelayDisplay();
+
+  // Update pending list
+  if (pendingList) {
+    pendingList.innerHTML = "";
+    if (comms.status() === "blackout") {
+      const li = document.createElement("li");
+      li.className = "comms-empty";
+      li.textContent = "Blackout in effect — countdown paused";
+      pendingList.appendChild(li);
+    } else {
+      const pendingItems = comms.pending() || [];
+      if (pendingItems.length === 0) {
+        const li = document.createElement("li");
+        li.className = "comms-empty";
+        li.textContent = "No pending downlinks";
+        pendingList.appendChild(li);
+      } else {
+        pendingItems.forEach((entry) => {
+          const li = document.createElement("li");
+          li.className = "comms-item";
+
+          const titleSpan = document.createElement("span");
+          const itemObj = entry.item || entry;
+          titleSpan.textContent = itemObj.title || `Day ${itemObj.day} alert`;
+
+          const cdSpan = document.createElement("span");
+          cdSpan.className = "comms-countdown";
+          cdSpan.textContent = formatCountdown(entry.secondsRemaining);
+
+          li.appendChild(titleSpan);
+          li.appendChild(cdSpan);
+          pendingList.appendChild(li);
+        });
+      }
+    }
+  }
+
+  // Update delivered list
+  if (deliveredList) {
+    deliveredList.innerHTML = "";
+    if (deliveredDownlinks.length === 0) {
+      const li = document.createElement("li");
+      li.className = "comms-empty";
+      li.textContent = "No delivered downlinks";
+      deliveredList.appendChild(li);
+    } else {
+      deliveredDownlinks.forEach((d) => {
+        const li = document.createElement("li");
+        li.className = "comms-item";
+
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = d.title || `Day ${d.day} alert`;
+
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "comms-delivered-time";
+        timeSpan.textContent = `Delivered ${d.deliveredAt || ""}`;
+
+        li.appendChild(titleSpan);
+        li.appendChild(timeSpan);
+        deliveredList.appendChild(li);
+      });
+    }
+  }
+}
+
+function startCommsInterval() {
+  if (commsIntervalStarted) return;
+  commsIntervalStarted = true;
+
+  setInterval(() => {
+    if (window.AegisComms && typeof window.AegisComms.tick === "function") {
+      const delivered = window.AegisComms.tick();
+      if (delivered && delivered.length > 0) {
+        delivered.forEach((item) => {
+          deliveredDownlinks.unshift({
+            ...item,
+            deliveredAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+          });
+        });
+      }
+      renderComms();
+    }
+  }, 1000);
+}
 
 function render(member) {
   if (!member) return;
@@ -221,8 +399,18 @@ function render(member) {
                   day: alert.day,
                   action: action,
                 });
-                render(member);
               }
+
+              if (action === "escalated" && window.AegisComms && typeof window.AegisComms.enqueue === "function") {
+                window.AegisComms.enqueue({
+                  crewId: member.id,
+                  day: alert.day,
+                  title: `Day ${alert.day} alert (${member.name})`,
+                  summary: alert.summary,
+                });
+              }
+
+              render(member);
             });
           }
 
@@ -294,6 +482,10 @@ function render(member) {
       });
     }
   }
+
+  // Refresh Comms panel
+  renderComms();
+  startCommsInterval();
 }
 
 function init() {
@@ -347,6 +539,10 @@ function init() {
       }
     });
   }
+
+  // Initial comms rendering
+  renderComms();
+  startCommsInterval();
 }
 
 init();

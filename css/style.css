@@ -66,6 +66,18 @@ header {
   line-height: 1;
 }
 
+#link-badge.link-blackout {
+  color: var(--red);
+  border-color: var(--red);
+  background-color: rgba(252, 61, 33, 0.1);
+}
+
+#link-badge.link-connected {
+  color: var(--green);
+  border-color: var(--green);
+  background-color: rgba(61, 220, 132, 0.1);
+}
+
 #app {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -395,6 +407,117 @@ footer {
   color: var(--dim);
   font-style: italic;
   padding: 8px 0;
+}
+
+/* Comms Panel */
+.comms-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.comms-slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.comms-slider-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.comms-delay-values {
+  font-family: var(--mono);
+  color: var(--cyan);
+  font-size: 0.8rem;
+}
+
+.comms-slider-container input[type="range"] {
+  width: 100%;
+  accent-color: var(--cyan);
+  cursor: pointer;
+}
+
+.comms-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.85rem;
+}
+
+.comms-toggles label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.comms-select {
+  background-color: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+.comms-subheading {
+  font-size: 0.85rem;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 12px 0 6px;
+}
+
+.comms-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+}
+
+.comms-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(31, 42, 68, 0.5);
+}
+
+.comms-countdown {
+  font-family: var(--mono);
+  color: var(--amber);
+  font-size: 0.8rem;
+}
+
+.comms-delivered-time {
+  font-family: var(--mono);
+  color: var(--green);
+  font-size: 0.8rem;
+}
+
+.comms-empty {
+  color: var(--dim);
+  font-style: italic;
+  padding: 4px 0;
+  font-size: 0.85rem;
+}
+
+.comms-note {
+  font-size: 0.8rem;
+  color: var(--dim);
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin: 12px 0 0;
+  line-height: 1.4;
 }
 
 @media (max-width: 900px) {
