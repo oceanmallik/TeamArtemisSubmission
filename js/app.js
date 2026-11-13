@@ -1,5 +1,16 @@
 let crewData = null;
 
+const SIGNAL_NAMES = {
+  hr: "Heart rate",
+  sbp: "Systolic BP",
+  dbp: "Diastolic BP",
+  glucose: "Glucose",
+  temp: "Temperature",
+  sleep: "Sleep",
+  mood: "Mood",
+  activity: "Activity",
+};
+
 function render(member) {
   if (!member) return;
   console.log(member.name, member.days ? member.days.length : 0);
@@ -117,6 +128,63 @@ function render(member) {
 
         card.appendChild(header);
         card.appendChild(summaryP);
+
+        // Details element: "Why was this flagged?"
+        const details = document.createElement("details");
+        details.className = "alert-details";
+
+        const summaryEl = document.createElement("summary");
+        summaryEl.textContent = "Why was this flagged?";
+        details.appendChild(summaryEl);
+
+        const table = document.createElement("table");
+        table.className = "alert-table";
+
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        ["Signal", "Now", "Personal baseline", "Deviation"].forEach((colName) => {
+          const th = document.createElement("th");
+          th.textContent = colName;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        (alert.signals || []).forEach((sig) => {
+          const row = document.createElement("tr");
+
+          const tdSignal = document.createElement("td");
+          tdSignal.textContent = SIGNAL_NAMES[sig.name] || sig.name;
+
+          const unitStr = units[sig.name] ? ` ${units[sig.name]}` : "";
+
+          const tdNow = document.createElement("td");
+          tdNow.textContent = `${sig.value}${unitStr}`;
+
+          const tdBase = document.createElement("td");
+          tdBase.textContent = `${sig.baselineMedian}${unitStr}`;
+
+          const tdDev = document.createElement("td");
+          const sign = sig.z >= 0 ? "+" : "";
+          tdDev.textContent = `${sign}${sig.z.toFixed(1)}`;
+
+          row.appendChild(tdSignal);
+          row.appendChild(tdNow);
+          row.appendChild(tdBase);
+          row.appendChild(tdDev);
+          tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+        details.appendChild(table);
+
+        const noteP = document.createElement("p");
+        noteP.className = "alert-details-note";
+        noteP.textContent =
+          "Flagged because 2 or more signals moved away from this person's own normal at the same time.";
+        details.appendChild(noteP);
+
+        card.appendChild(details);
         alertList.appendChild(card);
       });
     }
