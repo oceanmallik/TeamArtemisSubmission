@@ -1,7 +1,7 @@
 const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
-const { detect } = require("../js/detect.js");
+const { detect, currentWatch } = require("../js/detect.js");
 
 const dataPath = path.join(__dirname, "../data/crew.json");
 const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
@@ -44,6 +44,11 @@ alert1.signals.forEach((s) => {
 assert.strictEqual(typeof alert1.summary, "string", "Alert summary should be a string");
 assert.ok(alert1.summary.length > 0, "Alert summary should not be empty");
 
+// Check durationDays and confidence on A1
+assert.strictEqual(typeof alert1.durationDays, "number", "Alert durationDays should be a number");
+assert.ok(alert1.durationDays >= 1, "Alert durationDays should be >= 1");
+assert.strictEqual(alert1.confidence, "high", "A1's alert has confidence 'high'");
+
 // Check alert shape on A4
 const alert4 = alertsA4[0];
 assert.strictEqual(typeof alert4.day, "number");
@@ -51,9 +56,37 @@ assert.ok(["watch", "attention"].includes(alert4.level));
 assert.ok(Array.isArray(alert4.signals));
 assert.ok(alert4.signals.length >= 2);
 assert.strictEqual(typeof alert4.summary, "string");
+assert.strictEqual(typeof alert4.durationDays, "number");
+assert.ok(["high", "medium", "low"].includes(alert4.confidence));
+
+// Test currentWatch
+const watchA1 = currentWatch(crewA1.days);
+assert.strictEqual(watchA1.alertActive, true, "A1 currentWatch alertActive should be true");
+assert.ok(Array.isArray(watchA1.signals), "A1 currentWatch signals should be an array");
+
+// For A2, currentWatch returns alertActive false with exactly one signal (sleep)
+const watchA2 = currentWatch(crewA2.days);
+assert.strictEqual(watchA2.alertActive, false, "for A2, currentWatch returns alertActive false");
+assert.strictEqual(watchA2.signals.length, 1, "for A2, currentWatch returns exactly one signal");
+assert.strictEqual(watchA2.signals[0].name, "sleep", "for A2, currentWatch signal is sleep");
+assert.strictEqual(typeof watchA2.signals[0].value, "number", "signal value should be a number");
+assert.strictEqual(typeof watchA2.signals[0].baselineMedian, "number", "signal baselineMedian should be a number");
+assert.strictEqual(typeof watchA2.signals[0].z, "number", "signal z should be a number");
+assert.strictEqual(typeof watchA2.signals[0].daysOff, "number", "signal daysOff should be a number");
+assert.ok(watchA2.signals[0].daysOff >= 3, "daysOff should be >= 3");
+
+// For A3, currentWatch returns no signals
+const watchA3 = currentWatch(crewA3.days);
+assert.strictEqual(watchA3.alertActive, false, "for A3, currentWatch returns alertActive false");
+assert.strictEqual(watchA3.signals.length, 0, "for A3, currentWatch returns no signals");
+
+// For A4, currentWatch returns alertActive true
+const watchA4 = currentWatch(crewA4.days);
+assert.strictEqual(watchA4.alertActive, true, "for A4, currentWatch returns alertActive true");
+assert.strictEqual(watchA4.signals.length, 2, "for A4, currentWatch returns 2 deviating signals (sleep, activity)");
 
 console.log("All detect tests passed successfully!");
-console.log(`- A1 (Crew A): ${alertsA1.length} alert(s)`);
-console.log(`- A2 (Crew B): ${alertsA2.length} alert(s)`);
-console.log(`- A3 (Crew C): ${alertsA3.length} alert(s)`);
-console.log(`- A4 (Crew D): ${alertsA4.length} alert(s)`);
+console.log(`- A1 (Crew A): ${alertsA1.length} alert(s), confidence: ${alert1.confidence}, duration: ${alert1.durationDays}d`);
+console.log(`- A2 (Crew B): ${alertsA2.length} alert(s), currentWatch: alertActive=${watchA2.alertActive}, signals=${watchA2.signals.map(s => s.name).join(",")}`);
+console.log(`- A3 (Crew C): ${alertsA3.length} alert(s), currentWatch: alertActive=${watchA3.alertActive}, signals count=${watchA3.signals.length}`);
+console.log(`- A4 (Crew D): ${alertsA4.length} alert(s), currentWatch: alertActive=${watchA4.alertActive}, signals=${watchA4.signals.map(s => s.name).join(",")}`);
