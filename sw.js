@@ -12,6 +12,8 @@ const APP_FILES = [
   "js/app.js",
   "data/crew.json",
   "manifest.webmanifest",
+  "favicon.svg",
+  "favicon.ico",
 ];
 
 self.addEventListener("install", (event) => {
