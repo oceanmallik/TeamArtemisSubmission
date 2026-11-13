@@ -1023,6 +1023,26 @@ a:hover { text-decoration: underline; }
   padding: 8px 0;
 }
 
+/* Decisions panel footer / Reset demo */
+.decisions-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: flex-start;
+}
+
+.btn-reset {
+  font-size: 9px;
+  padding: 4px 10px;
+  color: var(--dim);
+}
+
+.btn-reset:hover:not(:disabled) {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+
 /* ── COMMS PANEL ─────────────────────────────────────────────── */
 .comms-controls {
   display: flex;

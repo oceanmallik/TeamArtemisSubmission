@@ -1,4 +1,5 @@
 let crewData = null;
+let currentMember = null;
 const deliveredDownlinks = [];
 let commsIntervalStarted = false;
 let commsListenersAttached = false;
@@ -362,6 +363,7 @@ function renderHazards(member, alerts) {
 
 function render(member) {
   if (!member) return;
+  currentMember = member;
   console.log(member.name, member.days ? member.days.length : 0);
 
   const lineChart =
@@ -747,6 +749,71 @@ function render(member) {
 
   // Render Mission Hazards
   renderHazards(member, alerts);
+
+  // Setup Reset demo button
+  setupResetButton();
+}
+
+function getActiveMember() {
+  if (currentMember) return currentMember;
+  const crewSelect = document.getElementById("crew-select");
+  if (crewSelect && crewData && Array.isArray(crewData.crew)) {
+    return crewData.crew.find((m) => m.id === crewSelect.value) || crewData.crew[0];
+  }
+  return (crewData && crewData.crew && crewData.crew[0]) || null;
+}
+
+function resetDemo() {
+  if (typeof confirm === "function") {
+    if (!confirm("Reset all decisions?")) {
+      return;
+    }
+  }
+
+  // 1. Clear decisions in store
+  const store = window.AegisStore || (typeof AegisStore !== "undefined" ? AegisStore : null);
+  if (store && typeof store.clearDecisions === "function") {
+    store.clearDecisions();
+  }
+
+  // 2. Empty comms queue
+  const comms = window.AegisComms || (typeof AegisComms !== "undefined" ? AegisComms : null);
+  if (comms && typeof comms.clearQueue === "function") {
+    comms.clearQueue();
+  }
+
+  // 3. Empty delivered list
+  deliveredDownlinks.length = 0;
+
+  // 4. Re-render alerts, action log, and comms views
+  const member = getActiveMember();
+  if (member) {
+    render(member);
+  } else {
+    renderComms();
+  }
+}
+
+function setupResetButton() {
+  let resetBtn = document.getElementById("btn-reset-demo");
+  if (!resetBtn) {
+    const decisionsPanel = document.getElementById("decisions");
+    if (decisionsPanel) {
+      const footer = document.createElement("div");
+      footer.className = "decisions-footer";
+      resetBtn = document.createElement("button");
+      resetBtn.type = "button";
+      resetBtn.id = "btn-reset-demo";
+      resetBtn.className = "btn btn-reset";
+      resetBtn.textContent = "Reset demo";
+      footer.appendChild(resetBtn);
+      decisionsPanel.appendChild(footer);
+    }
+  }
+  if (resetBtn && !resetBtn.dataset.listenerAttached) {
+    resetBtn.addEventListener("click", resetDemo);
+    resetBtn.dataset.listenerAttached = "true";
+  }
 }
 
 function init() {
@@ -808,6 +875,9 @@ function init() {
 
   // Offline ready listener
   initOfflineReady();
+
+  // Setup Reset demo button
+  setupResetButton();
 }
 
 function initOfflineReady() {
@@ -840,3 +910,6 @@ init();
 window.render = render;
 window.renderHazards = renderHazards;
 window.initOfflineReady = initOfflineReady;
+window.resetDemo = resetDemo;
+window.getActiveMember = getActiveMember;
+window.deliveredDownlinks = deliveredDownlinks;
