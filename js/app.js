@@ -76,6 +76,56 @@ function render(member) {
       });
     }
   });
+
+  // Multi-signal deviation detection & Alerts
+  const detectFn =
+    (window.AegisDetect && window.AegisDetect.detect) ||
+    (typeof AegisDetect !== "undefined" && AegisDetect.detect);
+
+  const alertList = document.getElementById("alert-list");
+  if (alertList && typeof detectFn === "function") {
+    alertList.innerHTML = "";
+    const alerts = detectFn(days);
+
+    if (!alerts || alerts.length === 0) {
+      const emptyMsg = document.createElement("p");
+      emptyMsg.className = "alert-empty";
+      emptyMsg.textContent = "All signals within personal baseline";
+      alertList.appendChild(emptyMsg);
+    } else {
+      alerts.forEach((alert) => {
+        const card = document.createElement("div");
+        card.className = `alert-card alert-${alert.level}`;
+
+        const header = document.createElement("div");
+        header.className = "alert-card-header";
+
+        const badge = document.createElement("span");
+        badge.className = `badge badge-${alert.level}`;
+        badge.textContent = alert.level;
+
+        const daySpan = document.createElement("span");
+        daySpan.className = "alert-day";
+        daySpan.textContent = `Flight day ${alert.day}`;
+
+        header.appendChild(badge);
+        header.appendChild(daySpan);
+
+        const summaryP = document.createElement("p");
+        summaryP.className = "alert-summary";
+        summaryP.textContent = alert.summary;
+
+        card.appendChild(header);
+        card.appendChild(summaryP);
+        alertList.appendChild(card);
+      });
+    }
+
+    const disclaimer = document.createElement("div");
+    disclaimer.className = "alert-disclaimer";
+    disclaimer.textContent = "Decision support only. Not a medical diagnosis.";
+    alertList.appendChild(disclaimer);
+  }
 }
 
 function init() {

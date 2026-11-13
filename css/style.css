@@ -133,6 +133,81 @@ footer {
   font-size: 0.85rem;
 }
 
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  line-height: 1.2;
+}
+
+.badge-watch {
+  color: var(--amber);
+  border: 1px solid var(--amber);
+  background-color: rgba(255, 176, 32, 0.1);
+}
+
+.badge-attention {
+  color: var(--red);
+  border: 1px solid var(--red);
+  background-color: rgba(252, 61, 33, 0.1);
+}
+
+/* Alert List & Cards */
+.alert-card {
+  background-color: rgba(13, 18, 32, 0.6);
+  border: 1px solid var(--line);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.alert-card.alert-watch {
+  border-left: 3px solid var(--amber);
+}
+
+.alert-card.alert-attention {
+  border-left: 3px solid var(--red);
+}
+
+.alert-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.alert-day {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--dim);
+}
+
+.alert-summary {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.alert-empty {
+  color: var(--dim);
+  font-style: italic;
+  margin: 8px 0 16px;
+}
+
+.alert-disclaimer {
+  font-size: 0.8rem;
+  color: var(--dim);
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: 12px;
+}
+
 @media (max-width: 900px) {
   #indicators {
     grid-template-columns: repeat(2, 1fr);
