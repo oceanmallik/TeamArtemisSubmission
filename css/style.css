@@ -1,1 +1,45 @@
-/* AEGIS Health Monitor */
+:root {
+  --void: #070a12;
+  --panel: #0d1220;
+  --line: #1f2a44;
+  --text: #d8e1f0;
+  --dim: #8392ad;
+  --red: #fc3d21;
+  --cyan: #5ce1e6;
+  --green: #3ddc84;
+  --amber: #ffb020;
+
+  --sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--void);
+  color: var(--text);
+  font-family: var(--sans);
+}
+
+a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.panel {
+  background-color: var(--panel);
+  border: 1px solid var(--line);
+  padding: 20px;
+}
