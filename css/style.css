@@ -1,11 +1,29 @@
 /* ═══════════════════════════════════════════════════════════════
-   AEGIS HUD — Mission-Control Dark Theme
-   Color palette:
+   AEGIS HUD — Mission-Control Dark Theme   Color palette:
      Page bg   #0A0C0B    Panel bg  #101312
      Border    #1E2422    Accent    #B6F23A  (neon lime)
      Text       #E8EDE9    Dim       #5A6360
      Warning    #F5A623    Danger    #FF4040
    ═══════════════════════════════════════════════════════════════ */
+
+/* ── STARFIELD CANVAS ────────────────────────────────────────── */
+#star-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+}
+
+/* Ensure all content layers sit above the canvas */
+.topnav,
+.hud-layout,
+.hud-footer {
+  position: relative;
+  z-index: 1;
+}
 
 /* ── TOKENS ─────────────────────────────────────────────────── */
 :root {
@@ -47,7 +65,7 @@ html {
 
 body {
   min-height: 100vh;
-  background-color: var(--void);
+  background-color: transparent; /* canvas provides the background */
   color: var(--text);
   font-family: var(--sans);
   font-size: 14px;
@@ -86,10 +104,10 @@ a:hover { text-decoration: underline; }
   gap: 16px;
   height: 52px;
   padding: 0 20px;
-  background-color: var(--panel);
+  background-color: rgba(16, 19, 18, 0.88);
   border-bottom: 1px solid var(--line);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 /* Brand */
@@ -211,7 +229,9 @@ a:hover { text-decoration: underline; }
   scrollbar-color: var(--line) transparent;
   padding: 20px 16px;
   border-right: 1px solid var(--line);
-  background-color: var(--panel);
+  background-color: rgba(16, 19, 18, 0.80);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -389,7 +409,9 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
-  background-color: var(--panel);
+  background-color: rgba(16, 19, 18, 0.82);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 .info-cell {
@@ -414,11 +436,13 @@ a:hover { text-decoration: underline; }
 /* ── PANELS (base) ───────────────────────────────────────────── */
 .panel {
   position: relative;
-  background-color: var(--panel);
+  background-color: rgba(16, 19, 18, 0.82); /* #101312 at 82% — stars bleed through faintly */
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 16px;
   transition: border-color 0.2s;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 .panel:hover {
@@ -1117,7 +1141,9 @@ a:hover { text-decoration: underline; }
   align-items: center;
   justify-content: center;
   border-top: 1px solid var(--line);
-  background-color: var(--panel);
+  background-color: rgba(16, 19, 18, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .hud-footer .mono-label {
