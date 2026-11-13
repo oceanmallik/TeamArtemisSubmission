@@ -4,6 +4,17 @@ let commsIntervalStarted = false;
 let commsListenersAttached = false;
 let medicalOfficerAffected = false;
 
+var activeSignals = window.activeSignals = window.activeSignals || {
+  hr: true,
+  bp: true,
+  glucose: true,
+  temp: true,
+  sleep: true,
+  mood: true,
+  activity: true,
+  o2: false,
+};
+
 const SIGNAL_NAMES = {
   hr: "Heart rate",
   sbp: "Systolic BP",
@@ -425,6 +436,23 @@ function render(member) {
       });
     }
   });
+
+  // Preserve chart visibility according to activeSignals
+  if (typeof window !== "undefined" && window.activeSignals) {
+    Object.keys(window.activeSignals).forEach((sig) => {
+      const card = document.querySelector(`.chart-panel[data-signal="${sig}"]`) ||
+                   document.getElementById(`chart-${sig}`)?.closest('.chart-panel');
+      if (card) {
+        const isVisible = Boolean(window.activeSignals[sig]);
+        card.style.display = isVisible ? '' : 'none';
+        if (isVisible) {
+          card.removeAttribute('hidden');
+        } else {
+          card.setAttribute('hidden', '');
+        }
+      }
+    });
+  }
 
   // Access store & detector
   const store = window.AegisStore || (typeof AegisStore !== "undefined" ? AegisStore : null);

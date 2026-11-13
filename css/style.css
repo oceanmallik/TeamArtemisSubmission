@@ -306,23 +306,85 @@ a:hover { text-decoration: underline; }
   letter-spacing: 0.06em;
   color: var(--dim);
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s, opacity 0.15s;
   text-transform: uppercase;
+  user-select: none;
 }
 
 .chip svg { flex-shrink: 0; }
 
-.chip:hover {
-  border-color: var(--line-hi);
-  color: var(--text);
+/* ON state: neon lime accent border and text, full opacity */
+.chip--active,
+.chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+  opacity: 1;
 }
 
-.chip--active {
+.chip--active svg,
+.chip[aria-pressed="true"] svg {
+  stroke: var(--accent);
+}
+
+.chip--active:hover:not(:disabled),
+.chip[aria-pressed="true"]:hover:not(:disabled) {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.chip--active svg { stroke: var(--accent); }
+/* OFF state: dimmed, no accent border */
+.chip[aria-pressed="false"],
+.chip:not(.chip--active):not([aria-pressed="true"]) {
+  border-color: var(--line);
+  color: var(--dim);
+  opacity: 0.45;
+}
+
+.chip[aria-pressed="false"] svg,
+.chip:not(.chip--active):not([aria-pressed="true"]) svg {
+  stroke: var(--dim);
+}
+
+.chip[aria-pressed="false"]:hover:not(:disabled),
+.chip:not(.chip--active):not([aria-pressed="true"]):hover:not(:disabled) {
+  opacity: 0.8;
+  border-color: var(--line-hi);
+  color: var(--text);
+}
+
+.chip[aria-pressed="false"]:hover:not(:disabled) svg,
+.chip:not(.chip--active):not([aria-pressed="true"]):hover:not(:disabled) svg {
+  stroke: var(--text);
+}
+
+/* Disabled state */
+.chip:disabled,
+.chip[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: var(--line);
+  color: var(--dim);
+}
+
+.chip:disabled svg,
+.chip[disabled] svg {
+  stroke: var(--dim);
+}
+
+/* O2 specific compact layout */
+.chip[data-module="o2"],
+.chip[data-signal="o2"] {
+  padding: 6px 6px;
+  gap: 4px;
+}
+
+.chip[data-module="o2"] span,
+.chip[data-signal="o2"] span {
+  font-size: 8px;
+  line-height: 1.15;
+  text-align: left;
+  white-space: normal;
+}
 
 /* Segmented control */
 .seg-control {

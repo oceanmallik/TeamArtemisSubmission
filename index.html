@@ -77,37 +77,37 @@
       <div class="form-group">
         <p class="mono-label">SIGNAL MODULES</p>
         <div class="chip-grid">
-          <button class="chip chip--active" data-module="hr" title="Heart Rate">
+          <button class="chip chip--active" data-module="hr" data-signal="hr" aria-pressed="true" title="Heart Rate">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13.5S2 9.5 2 5.5A3.5 3.5 0 0 1 8 3.5a3.5 3.5 0 0 1 6 2c0 4-6 8-6 8Z" stroke="currentColor" stroke-width="1.2"/></svg>
             <span>HR</span>
           </button>
-          <button class="chip chip--active" data-module="bp" title="Blood Pressure">
+          <button class="chip chip--active" data-module="bp" data-signal="bp" aria-pressed="true" title="Blood Pressure">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="6" width="12" height="4" rx="2" stroke="currentColor" stroke-width="1.2"/><line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.2"/></svg>
             <span>BP</span>
           </button>
-          <button class="chip chip--active" data-module="glucose" title="Glucose">
+          <button class="chip chip--active" data-module="glucose" data-signal="glucose" aria-pressed="true" title="Glucose">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 8h5M8 5.5v5" stroke="currentColor" stroke-width="1.2"/></svg>
             <span>GLU</span>
           </button>
-          <button class="chip chip--active" data-module="temp" title="Temperature">
+          <button class="chip chip--active" data-module="temp" data-signal="temp" aria-pressed="true" title="Temperature">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="6.5" y="2" width="3" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="12" r="2" stroke="currentColor" stroke-width="1.2"/></svg>
             <span>TMP</span>
           </button>
-          <button class="chip chip--active" data-module="sleep" title="Sleep">
+          <button class="chip chip--active" data-module="sleep" data-signal="sleep" aria-pressed="true" title="Sleep">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3a6 6 0 1 1-6 10A6 6 0 0 0 10 3Z" stroke="currentColor" stroke-width="1.2"/></svg>
             <span>SLP</span>
           </button>
-          <button class="chip chip--active" data-module="mood" title="Mood">
+          <button class="chip chip--active" data-module="mood" data-signal="mood" aria-pressed="true" title="Mood">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 9.5q2.5 2 5 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
             <span>MDD</span>
           </button>
-          <button class="chip chip--active" data-module="activity" title="Activity">
+          <button class="chip chip--active" data-module="activity" data-signal="activity" aria-pressed="true" title="Activity">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><polyline points="2,10 5,6 8,8 11,4 14,7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span>ACT</span>
           </button>
-          <button class="chip" data-module="o2" title="Oxygen Saturation">
+          <button class="chip" data-module="o2" data-signal="o2" disabled aria-disabled="true" aria-pressed="false" aria-label="O₂ not monitored" title="SpO₂ is not part of this prototype's data.">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-            <span>O₂</span>
+            <span>O₂ not monitored</span>
           </button>
         </div>
       </div>
@@ -179,7 +179,7 @@
         </div>
         <div class="info-cell">
           <span class="mono-label">ACTIVE SIGNALS</span>
-          <span class="info-value" id="info-active-signals">8</span>
+          <span class="info-value" id="info-active-signals">7</span>
         </div>
         <div class="info-cell">
           <span class="mono-label">OPEN ALERTS</span>
@@ -197,37 +197,37 @@
       <section id="tab-telemetry" class="tab-panel tab-panel--active">
         <p class="mono-label section-label">BIOSIGNAL TELEMETRY</p>
         <div id="indicators" class="chart-grid">
-          <div class="panel chart-panel">
+          <div class="panel chart-panel" data-signal="hr">
             <p class="mono-label">HEART RATE</p>
             <h3 class="panel__title">Cardiac Rhythm</h3>
             <div id="chart-hr"></div>
           </div>
-          <div class="panel chart-panel">
+          <div class="panel chart-panel" data-signal="bp">
             <p class="mono-label">BLOOD PRESSURE</p>
             <h3 class="panel__title">Systolic / Diastolic</h3>
             <div id="chart-bp"></div>
           </div>
-          <div class="panel chart-panel">
+          <div class="panel chart-panel" data-signal="glucose">
             <p class="mono-label">GLUCOSE LEVEL</p>
             <h3 class="panel__title">Blood Glucose</h3>
             <div id="chart-glucose"></div>
           </div>
-          <div class="panel chart-panel">
+          <div class="panel chart-panel" data-signal="temp">
             <p class="mono-label">CORE TEMPERATURE</p>
             <h3 class="panel__title">Thermal Status</h3>
             <div id="chart-temp"></div>
           </div>
-          <div class="panel chart-panel">
+          <div class="panel chart-panel" data-signal="sleep">
             <p class="mono-label">SLEEP QUALITY</p>
             <h3 class="panel__title">Rest Duration</h3>
             <div id="chart-sleep"></div>
           </div>
-          <div class="panel chart-panel">
+          <div class="panel chart-panel" data-signal="mood">
             <p class="mono-label">MOOD INDEX</p>
             <h3 class="panel__title">Psycho Status</h3>
             <div id="chart-mood"></div>
           </div>
-          <div class="panel chart-panel">
+          <div class="panel chart-panel" data-signal="activity">
             <p class="mono-label">ACTIVITY LEVEL</p>
             <h3 class="panel__title">Kinetic Output</h3>
             <div id="chart-activity"></div>
@@ -391,10 +391,73 @@
       });
     });
 
-    // ── Chip grid toggle ──────────────────────────────────────
-    document.querySelectorAll('.chip').forEach(chip => {
-      chip.addEventListener('click', () => chip.classList.toggle('chip--active'));
+    // ── Active signals state & toggle ─────────────────────────
+    var activeSignals = window.activeSignals = window.activeSignals || {
+      hr: true,
+      bp: true,
+      glucose: true,
+      temp: true,
+      sleep: true,
+      mood: true,
+      activity: true,
+      o2: false,
+    };
+
+    function updateActiveSignalsDisplay() {
+      const activeCount = Object.values(window.activeSignals).filter(Boolean).length;
+      const countEl = document.getElementById('info-active-signals');
+      if (countEl) {
+        countEl.textContent = String(activeCount);
+      }
+    }
+
+    function setSignalState(signal, isActive) {
+      if (signal === 'o2') return; // O2 not monitored / disabled
+      window.activeSignals[signal] = Boolean(isActive);
+
+      const chip = document.querySelector(`.chip-grid .chip[data-signal="${signal}"], .chip-grid .chip[data-module="${signal}"]`);
+      if (chip && !chip.disabled) {
+        chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        chip.classList.toggle('chip--active', Boolean(isActive));
+      }
+
+      const card = document.querySelector(`.chart-panel[data-signal="${signal}"]`) ||
+                   document.getElementById(`chart-${signal}`)?.closest('.chart-panel');
+      if (card) {
+        card.style.display = isActive ? '' : 'none';
+        if (isActive) {
+          card.removeAttribute('hidden');
+        } else {
+          card.setAttribute('hidden', '');
+        }
+      }
+
+      updateActiveSignalsDisplay();
+    }
+
+    function toggleSignal(signal) {
+      if (signal === 'o2') return;
+      const currentState = Boolean(window.activeSignals[signal]);
+      setSignalState(signal, !currentState);
+    }
+
+    window.setSignalState = setSignalState;
+    window.toggleSignal = toggleSignal;
+    window.updateActiveSignalsDisplay = updateActiveSignalsDisplay;
+
+    // Attach click listeners to chips
+    document.querySelectorAll('.chip-grid .chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (chip.disabled || chip.getAttribute('aria-disabled') === 'true') return;
+        const signal = chip.dataset.signal || chip.dataset.module;
+        if (signal) {
+          toggleSignal(signal);
+        }
+      });
     });
+
+    // Initialize display and visibility on load
+    updateActiveSignalsDisplay();
 
     // ── Segmented control: med officer ────────────────────────
     document.querySelectorAll('.seg-btn').forEach(btn => {
