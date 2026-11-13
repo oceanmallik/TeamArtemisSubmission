@@ -85,7 +85,7 @@ window.AegisCharts.lineChart = function (container, options) {
     bandRect.setAttribute("y", bandTop);
     bandRect.setAttribute("width", plotWidth);
     bandRect.setAttribute("height", Math.max(bandHeight, 1));
-    bandRect.setAttribute("fill", "var(--cyan)");
+    bandRect.setAttribute("fill", "var(--accent)");
     bandRect.setAttribute("opacity", "0.12");
     svg.appendChild(bandRect);
   }
@@ -172,7 +172,7 @@ window.AegisCharts.lineChart = function (container, options) {
   svg.appendChild(lastText);
 
   // Polylines
-  const STROKE_COLORS = ["var(--cyan)", "var(--amber)", "var(--green)", "var(--red)"];
+  const STROKE_COLORS = ["var(--accent)", "var(--amber)", "var(--cyan)", "var(--red)"];
 
   options.series.forEach((s, sIndex) => {
     const vals = s.values || [];

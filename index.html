@@ -3,86 +3,362 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AEGIS Health Monitor</title>
+  <title>AEGIS — Crew Health Monitor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="manifest" href="manifest.webmanifest">
-  <style>
-    #offline-badge {
-      display: inline-flex;
-      align-items: center;
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--cyan);
-      border: 1px solid var(--cyan);
-      background-color: rgba(92, 225, 230, 0.1);
-      border-radius: 9999px;
-      padding: 4px 10px;
-      line-height: 1;
-    }
-  </style>
 </head>
 <body>
-  <header>
-    AEGIS
-    <select id="crew-select" aria-label="Crew member"></select>
-    <span id="offline-badge" class="offline-badge" style="display: none; margin-left: auto; margin-right: 8px;">Offline ready</span>
-    <span id="link-badge">Connected</span>
-  </header>
-  <main id="app">
-    <section id="indicators">
-      <div class="panel">
-        <h2>Heart rate</h2>
-        <div id="chart-hr"></div>
+
+  <!-- ═══════════════════════════════════════
+       TOP NAV BAR
+  ═══════════════════════════════════════ -->
+  <nav class="topnav">
+    <!-- Logo / Brand -->
+    <div class="topnav__brand">
+      <svg class="topnav__logomark" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="#B6F23A" stroke-width="1.5" fill="none"/>
+        <circle cx="14" cy="14" r="4" fill="#B6F23A"/>
+        <line x1="14" y1="6" x2="14" y2="10" stroke="#B6F23A" stroke-width="1"/>
+        <line x1="14" y1="18" x2="14" y2="22" stroke="#B6F23A" stroke-width="1"/>
+        <line x1="6" y1="10" x2="10" y2="12" stroke="#B6F23A" stroke-width="1"/>
+        <line x1="18" y1="16" x2="22" y2="18" stroke="#B6F23A" stroke-width="1"/>
+        <line x1="22" y1="10" x2="18" y2="12" stroke="#B6F23A" stroke-width="1"/>
+        <line x1="10" y1="16" x2="6" y2="18" stroke="#B6F23A" stroke-width="1"/>
+      </svg>
+      <span class="topnav__brand-name">AEGIS</span>
+    </div>
+
+    <!-- Centered pill tab switcher -->
+    <div class="topnav__tabs-wrap">
+      <div class="topnav__tabs" role="tablist">
+        <button class="topnav__tab topnav__tab--active" role="tab" aria-selected="true" data-tab="telemetry">Telemetry</button>
+        <button class="topnav__tab" role="tab" aria-selected="false" data-tab="alerts">Alerts</button>
+        <button class="topnav__tab" role="tab" aria-selected="false" data-tab="hazards">Hazards</button>
+        <button class="topnav__tab" role="tab" aria-selected="false" data-tab="comms">Comms</button>
       </div>
-      <div class="panel">
-        <h2>Blood pressure</h2>
-        <div id="chart-bp"></div>
+    </div>
+
+    <!-- Right: status + offline badge -->
+    <div class="topnav__right">
+      <span id="offline-badge" style="display:none;">
+        <svg width="6" height="6" viewBox="0 0 6 6" aria-hidden="true"><circle cx="3" cy="3" r="3" fill="#B6F23A"/></svg>
+        Offline ready
+      </span>
+      <span id="link-badge" class="link-connected">
+        <svg class="status-dot" width="6" height="6" viewBox="0 0 6 6" aria-hidden="true"><circle cx="3" cy="3" r="3" fill="currentColor"/></svg>
+        Connected
+      </span>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════
+       MAIN LAYOUT: sidebar + content
+  ═══════════════════════════════════════ -->
+  <div class="hud-layout">
+
+    <!-- ── LEFT SIDEBAR ── -->
+    <aside class="sidebar">
+      <p class="mono-label">MISSION CONFIG</p>
+      <h2 class="sidebar__heading">Crew &amp; Parameters</h2>
+
+      <!-- Crew member selector -->
+      <div class="form-group">
+        <label class="mono-label" for="crew-select">ACTIVE CREW MEMBER</label>
+        <select id="crew-select" class="hud-select" aria-label="Crew member"></select>
       </div>
-      <div class="panel">
-        <h2>Glucose</h2>
-        <div id="chart-glucose"></div>
+
+      <!-- Icon chip grid: Vitals modules -->
+      <div class="form-group">
+        <p class="mono-label">SIGNAL MODULES</p>
+        <div class="chip-grid">
+          <button class="chip chip--active" data-module="hr" title="Heart Rate">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13.5S2 9.5 2 5.5A3.5 3.5 0 0 1 8 3.5a3.5 3.5 0 0 1 6 2c0 4-6 8-6 8Z" stroke="currentColor" stroke-width="1.2"/></svg>
+            <span>HR</span>
+          </button>
+          <button class="chip chip--active" data-module="bp" title="Blood Pressure">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="6" width="12" height="4" rx="2" stroke="currentColor" stroke-width="1.2"/><line x1="8" y1="2" x2="8" y2="14" stroke="currentColor" stroke-width="1.2"/></svg>
+            <span>BP</span>
+          </button>
+          <button class="chip chip--active" data-module="glucose" title="Glucose">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 8h5M8 5.5v5" stroke="currentColor" stroke-width="1.2"/></svg>
+            <span>GLU</span>
+          </button>
+          <button class="chip chip--active" data-module="temp" title="Temperature">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="6.5" y="2" width="3" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="12" r="2" stroke="currentColor" stroke-width="1.2"/></svg>
+            <span>TMP</span>
+          </button>
+          <button class="chip chip--active" data-module="sleep" title="Sleep">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3a6 6 0 1 1-6 10A6 6 0 0 0 10 3Z" stroke="currentColor" stroke-width="1.2"/></svg>
+            <span>SLP</span>
+          </button>
+          <button class="chip chip--active" data-module="mood" title="Mood">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 9.5q2.5 2 5 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <span>MDD</span>
+          </button>
+          <button class="chip chip--active" data-module="activity" title="Activity">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><polyline points="2,10 5,6 8,8 11,4 14,7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>ACT</span>
+          </button>
+          <button class="chip" data-module="o2" title="Oxygen Saturation">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            <span>O₂</span>
+          </button>
+        </div>
       </div>
-      <div class="panel">
-        <h2>Temperature</h2>
-        <div id="chart-temp"></div>
+
+      <!-- Demo speed -->
+      <div class="form-group">
+        <label class="mono-label" for="comms-speed">SIMULATION SPEED</label>
+        <select id="comms-speed" class="hud-select">
+          <option value="1">Real-time 1×</option>
+          <option value="60">Accelerated 60×</option>
+        </select>
       </div>
-      <div class="panel">
-        <h2>Sleep</h2>
-        <div id="chart-sleep"></div>
+
+      <!-- Two side-by-side dropdowns: delay + mode -->
+      <div class="form-row-2col">
+        <div class="form-group">
+          <label class="mono-label" for="comms-delay-sidebar">DELAY (MIN)</label>
+          <select id="comms-delay-sidebar" class="hud-select">
+            <option value="3">3 min</option>
+            <option value="6">6 min</option>
+            <option value="12" selected>12 min</option>
+            <option value="18">18 min</option>
+            <option value="22">22 min</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="mono-label" for="comms-mode">LINK MODE</label>
+          <select id="comms-mode" class="hud-select">
+            <option value="normal">Normal</option>
+            <option value="blackout">Blackout</option>
+          </select>
+        </div>
       </div>
-      <div class="panel">
-        <h2>Mood</h2>
-        <div id="chart-mood"></div>
+
+      <!-- Segmented control: Medical Officer -->
+      <div class="form-group">
+        <p class="mono-label">MED OFFICER STATUS</p>
+        <div class="seg-control" role="group" aria-label="Medical officer status">
+          <button class="seg-btn seg-btn--active" data-value="unaffected" id="med-unaffected">Unaffected</button>
+          <button class="seg-btn" data-value="affected" id="med-affected">Affected</button>
+        </div>
       </div>
-      <div class="panel">
-        <h2>Activity</h2>
-        <div id="chart-activity"></div>
+
+      <!-- Hidden comms inputs kept for JS compatibility -->
+      <input type="range" id="comms-delay" min="3" max="22" value="12" style="display:none;">
+      <input type="checkbox" id="comms-blackout" style="display:none;">
+      <input type="checkbox" id="comms-medical-officer" style="display:none;">
+    </aside>
+
+    <!-- ── MAIN CONTENT AREA ── -->
+    <main class="hud-main">
+
+      <!-- HERO HEADER STRIP -->
+      <div class="hero-strip">
+        <div class="hero-strip__left">
+          <p class="mono-label">CREW HEALTH TELEMETRY — ARTEMIS III</p>
+          <h1 class="hero-headline">Autonomous Health<br>Monitoring System<br>for Deep-Space Ops</h1>
+        </div>
+        <div class="hero-strip__right">
+          <p class="hero-desc">Personalised deviation detection across 8 biosignals. All analysis runs locally — no Earth link required. Decision support, not medical advice.</p>
+        </div>
       </div>
-    </section>
-    <section id="alerts" class="panel">
-      <h2>Alerts</h2>
-      <div id="alert-list"></div>
-    </section>
-    <section id="decisions" class="panel">
-      <h2>Decision log</h2>
-      <ul id="decision-log"></ul>
-    </section>
-    <section id="comms" class="panel">
-      <h2>Comms link</h2>
-      <div id="comms-body"></div>
-    </section>
-    <section id="hazards" class="panel">
-      <h2>Mission hazards</h2>
-      <div id="hazard-list"></div>
-    </section>
-  </main>
-  <footer>
-    Simulated data. Not a medical device.
+
+      <!-- INFO STRIP: 4-column telemetry bar -->
+      <div class="info-strip">
+        <div class="info-cell">
+          <span class="mono-label">FLIGHT DAY</span>
+          <span class="info-value" id="info-flight-day">—</span>
+        </div>
+        <div class="info-cell">
+          <span class="mono-label">ACTIVE SIGNALS</span>
+          <span class="info-value" id="info-active-signals">8</span>
+        </div>
+        <div class="info-cell">
+          <span class="mono-label">OPEN ALERTS</span>
+          <span class="info-value" id="info-open-alerts">—</span>
+        </div>
+        <div class="info-cell">
+          <span class="mono-label">EARTH DELAY</span>
+          <span class="info-value" id="info-earth-delay">12 min</span>
+        </div>
+      </div>
+
+      <!-- TAB PANELS -->
+
+      <!-- ◉ TELEMETRY TAB -->
+      <section id="tab-telemetry" class="tab-panel tab-panel--active">
+        <p class="mono-label section-label">BIOSIGNAL TELEMETRY</p>
+        <div id="indicators" class="chart-grid">
+          <div class="panel chart-panel">
+            <p class="mono-label">HEART RATE</p>
+            <h3 class="panel__title">Cardiac Rhythm</h3>
+            <div id="chart-hr"></div>
+          </div>
+          <div class="panel chart-panel">
+            <p class="mono-label">BLOOD PRESSURE</p>
+            <h3 class="panel__title">Systolic / Diastolic</h3>
+            <div id="chart-bp"></div>
+          </div>
+          <div class="panel chart-panel">
+            <p class="mono-label">GLUCOSE LEVEL</p>
+            <h3 class="panel__title">Blood Glucose</h3>
+            <div id="chart-glucose"></div>
+          </div>
+          <div class="panel chart-panel">
+            <p class="mono-label">CORE TEMPERATURE</p>
+            <h3 class="panel__title">Thermal Status</h3>
+            <div id="chart-temp"></div>
+          </div>
+          <div class="panel chart-panel">
+            <p class="mono-label">SLEEP QUALITY</p>
+            <h3 class="panel__title">Rest Duration</h3>
+            <div id="chart-sleep"></div>
+          </div>
+          <div class="panel chart-panel">
+            <p class="mono-label">MOOD INDEX</p>
+            <h3 class="panel__title">Psycho Status</h3>
+            <div id="chart-mood"></div>
+          </div>
+          <div class="panel chart-panel">
+            <p class="mono-label">ACTIVITY LEVEL</p>
+            <h3 class="panel__title">Kinetic Output</h3>
+            <div id="chart-activity"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ◉ ALERTS TAB -->
+      <section id="tab-alerts" class="tab-panel" hidden>
+        <p class="mono-label section-label">DEVIATION ALERTS</p>
+
+        <!-- Three-card row -->
+        <div class="card-grid">
+          <div class="panel info-card">
+            <p class="mono-label">DETECTION METHOD</p>
+            <h3 class="panel__title">Multi-signal<br>Deviation Engine</h3>
+            <div class="info-card__rows">
+              <div class="info-card__row">
+                <span class="info-card__caption mono-label">THRESHOLD</span>
+                <span class="info-card__value">≥2 signals</span>
+                <span class="info-card__arrow" aria-hidden="true">→</span>
+              </div>
+              <div class="info-card__row">
+                <span class="info-card__caption mono-label">BASELINE</span>
+                <span class="info-card__value">Personal median</span>
+                <span class="info-card__arrow" aria-hidden="true">→</span>
+              </div>
+              <div class="info-card__row">
+                <span class="info-card__caption mono-label">METRIC</span>
+                <span class="info-card__value">Z-score deviation</span>
+                <span class="info-card__arrow" aria-hidden="true">→</span>
+              </div>
+            </div>
+            <p class="info-card__footnote">Flags only when 2+ signals diverge simultaneously.</p>
+          </div>
+
+          <div class="panel info-card">
+            <p class="mono-label">CONFIDENCE TIERS</p>
+            <h3 class="panel__title">Alert<br>Classification</h3>
+            <div class="info-card__rows">
+              <div class="info-card__row">
+                <span class="info-card__caption mono-label">LOW</span>
+                <span class="info-card__value">2 signals, 1 day</span>
+                <span class="info-card__arrow" aria-hidden="true">→</span>
+              </div>
+              <div class="info-card__row">
+                <span class="info-card__caption mono-label">MEDIUM</span>
+                <span class="info-card__value">3+ signals or 2 days</span>
+                <span class="info-card__arrow" aria-hidden="true">→</span>
+              </div>
+              <div class="info-card__row">
+                <span class="info-card__caption mono-label">HIGH</span>
+                <span class="info-card__value">4+ signals or 3+ days</span>
+                <span class="info-card__arrow" aria-hidden="true">→</span>
+              </div>
+            </div>
+            <p class="info-card__footnote">Confidence rises with signal count and duration.</p>
+          </div>
+
+          <div class="panel info-card">
+            <p class="mono-label">RESPONSE OPTIONS</p>
+            <h3 class="panel__title">Mission<br>Decision Flow</h3>
+            <div class="info-card__rows">
+              <div class="info-card__row">
+                <span class="info-card__caption mono-label">ACKNOWLEDGE</span>
+                <span class="info-card__value">Log + monitor</span>
+                <span class="info-card__arrow" aria-hidden="true">→</span>
+              </div>
+              <div class="info-card__row">
+                <span class="info-card__caption mono-label">DISMISS</span>
+                <span class="info-card__value">Mark as resolved</span>
+                <span class="info-card__arrow" aria-hidden="true">→</span>
+              </div>
+              <div class="info-card__row">
+                <span class="info-card__caption mono-label">ESCALATE</span>
+                <span class="info-card__value">Downlink to Earth</span>
+                <span class="info-card__arrow" aria-hidden="true">→</span>
+              </div>
+            </div>
+            <p class="info-card__footnote">All decisions are logged for mission debrief.</p>
+          </div>
+        </div>
+
+        <!-- Live alert list -->
+        <div class="panel" id="alerts" style="margin-top: 16px;">
+          <div class="panel__header">
+            <p class="mono-label">LIVE ALERTS</p>
+            <h3 class="panel__title">Active Flags</h3>
+          </div>
+          <div id="alert-list"></div>
+        </div>
+
+        <!-- Decision log -->
+        <div class="panel" id="decisions" style="margin-top: 16px;">
+          <div class="panel__header">
+            <p class="mono-label">DECISION RECORD</p>
+            <h3 class="panel__title">Action Log</h3>
+          </div>
+          <ul id="decision-log"></ul>
+        </div>
+      </section>
+
+      <!-- ◉ HAZARDS TAB -->
+      <section id="tab-hazards" class="tab-panel" hidden>
+        <p class="mono-label section-label">SPACEFLIGHT HAZARD MATRIX</p>
+        <div id="hazards" class="panel">
+          <div class="panel__header">
+            <p class="mono-label">NASA 5-HAZARD FRAMEWORK</p>
+            <h3 class="panel__title">Mission Risk Map</h3>
+          </div>
+          <div id="hazard-list"></div>
+        </div>
+      </section>
+
+      <!-- ◉ COMMS TAB -->
+      <section id="tab-comms" class="tab-panel" hidden>
+        <p class="mono-label section-label">EARTH COMMS LINK</p>
+        <div id="comms" class="panel">
+          <div class="panel__header">
+            <p class="mono-label">DOWNLINK CHANNEL</p>
+            <h3 class="panel__title">Mission Comms</h3>
+          </div>
+          <div id="comms-body"></div>
+        </div>
+      </section>
+
+    </main>
+  </div><!-- end .hud-layout -->
+
+  <footer class="hud-footer">
+    <span class="mono-label">SIMULATED TELEMETRY — NOT A MEDICAL DEVICE — TEAM ARTEMIS · NASA SPACE APPS 2026</span>
   </footer>
+
+  <!-- Scripts (order matters) -->
   <script src="js/charts.js"></script>
   <script src="js/baseline.js"></script>
   <script src="js/detect.js"></script>
@@ -90,48 +366,111 @@
   <script src="js/comms.js"></script>
   <script src="js/guidance.js"></script>
   <script src="js/app.js"></script>
+
+  <!-- HUD UI Controller -->
   <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js").then((registration) => {
-        function showOfflineBadge() {
-          const badge = document.getElementById("offline-badge");
-          if (badge) {
-            badge.style.display = "inline-flex";
-          }
-        }
+    // ── Tab switcher ──────────────────────────────────────────
+    document.querySelectorAll('.topnav__tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.topnav__tab').forEach(t => {
+          t.classList.remove('topnav__tab--active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        document.querySelectorAll('.tab-panel').forEach(p => {
+          p.classList.remove('tab-panel--active');
+          p.hidden = true;
+        });
+        tab.classList.add('topnav__tab--active');
+        tab.setAttribute('aria-selected', 'true');
+        const target = document.getElementById('tab-' + tab.dataset.tab);
+        if (target) { target.classList.add('tab-panel--active'); target.hidden = false; }
+      });
+    });
 
-        if (registration.active || navigator.serviceWorker.controller) {
-          showOfflineBadge();
-        }
+    // ── Chip grid toggle ──────────────────────────────────────
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => chip.classList.toggle('chip--active'));
+    });
 
-        if (registration.installing) {
-          registration.installing.addEventListener("statechange", (e) => {
-            if (e.target.state === "installed" || e.target.state === "activated") {
-              showOfflineBadge();
-            }
+    // ── Segmented control: med officer ────────────────────────
+    document.querySelectorAll('.seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('seg-btn--active'));
+        btn.classList.add('seg-btn--active');
+        const checkbox = document.getElementById('comms-medical-officer');
+        if (checkbox) {
+          checkbox.checked = btn.dataset.value === 'affected';
+          checkbox.dispatchEvent(new Event('change'));
+        }
+      });
+    });
+
+    // ── Sidebar delay select → hidden range input ─────────────
+    const delaySidebar = document.getElementById('comms-delay-sidebar');
+    if (delaySidebar) {
+      delaySidebar.addEventListener('change', () => {
+        const range = document.getElementById('comms-delay');
+        if (range) {
+          range.value = delaySidebar.value;
+          range.dispatchEvent(new Event('input'));
+        }
+        document.getElementById('info-earth-delay').textContent = delaySidebar.value + ' min';
+      });
+    }
+
+    // ── Sidebar mode select → blackout checkbox ───────────────
+    const modeSel = document.getElementById('comms-mode');
+    if (modeSel) {
+      modeSel.addEventListener('change', () => {
+        const cb = document.getElementById('comms-blackout');
+        if (cb) {
+          cb.checked = modeSel.value === 'blackout';
+          cb.dispatchEvent(new Event('change'));
+        }
+      });
+    }
+
+    // ── Info strip: update open alerts count ──────────────────
+    function updateInfoStrip() {
+      const alertCards = document.querySelectorAll('.alert-card');
+      document.getElementById('info-open-alerts').textContent = alertCards.length || '0';
+    }
+    const obs = new MutationObserver(updateInfoStrip);
+    const alertList = document.getElementById('alert-list');
+    if (alertList) obs.observe(alertList, { childList: true, subtree: false });
+
+    // ── Info strip: flight day ────────────────────────────────
+    function updateFlightDay() {
+      const dayEls = document.querySelectorAll('.alert-day');
+      if (dayEls.length) {
+        const nums = Array.from(dayEls).map(el => parseInt(el.textContent.replace(/\D/g,'')));
+        const max = Math.max(...nums.filter(n => !isNaN(n)));
+        if (max > 0) document.getElementById('info-flight-day').textContent = max;
+      }
+    }
+
+    // ── Service Worker ────────────────────────────────────────
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        const badge = document.getElementById('offline-badge');
+        function showBadge() { if (badge) badge.style.display = 'inline-flex'; }
+        if (reg.active || navigator.serviceWorker.controller) showBadge();
+        if (reg.installing) {
+          reg.installing.addEventListener('statechange', e => {
+            if (e.target.state === 'installed' || e.target.state === 'activated') showBadge();
           });
         }
-
-        registration.addEventListener("updatefound", () => {
-          const sw = registration.installing;
-          if (sw) {
-            sw.addEventListener("statechange", () => {
-              if (sw.state === "installed" || sw.state === "activated") {
-                showOfflineBadge();
-              }
-            });
-          }
+        reg.addEventListener('updatefound', () => {
+          const sw = reg.installing;
+          if (sw) sw.addEventListener('statechange', () => {
+            if (sw.state === 'installed' || sw.state === 'activated') showBadge();
+          });
         });
-      }).catch((err) => {
-        console.error("ServiceWorker registration failed:", err);
-      });
-
-      navigator.serviceWorker.addEventListener("message", (event) => {
-        if (event.data && event.data.type === "OFFLINE_READY") {
-          const badge = document.getElementById("offline-badge");
-          if (badge) {
-            badge.style.display = "inline-flex";
-          }
+      }).catch(err => console.error('ServiceWorker registration failed:', err));
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'OFFLINE_READY') {
+          const badge = document.getElementById('offline-badge');
+          if (badge) badge.style.display = 'inline-flex';
         }
       });
     }
