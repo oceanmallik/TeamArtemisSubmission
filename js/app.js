@@ -189,6 +189,88 @@ function startCommsInterval() {
   }, 1000);
 }
 
+function renderHazards(member, alerts) {
+  const hazardList = document.getElementById("hazard-list");
+  if (!hazardList) return;
+
+  hazardList.innerHTML = "";
+
+  const activeAlertSignals = new Set();
+  (alerts || []).forEach((alert) => {
+    if (alert && alert.signals && Array.isArray(alert.signals)) {
+      alert.signals.forEach((sig) => {
+        const sigName = typeof sig === "string" ? sig : (sig && sig.name);
+        if (sigName) {
+          activeAlertSignals.add(sigName);
+        }
+      });
+    }
+  });
+
+  const HAZARDS = [
+    {
+      title: "Isolation and confinement",
+      indicators: ["mood", "sleep"],
+    },
+    {
+      title: "Altered gravity",
+      indicators: ["hr", "sbp", "dbp", "activity"],
+    },
+    {
+      title: "Hostile closed environment",
+      indicators: ["temp", "sleep", "hr"],
+    },
+    {
+      title: "Distance from Earth",
+      description: "Addressed by local analysis and the comms link",
+      indicators: [],
+    },
+    {
+      title: "Space radiation",
+      description: "Not monitored in this prototype",
+      indicators: [],
+    },
+  ];
+
+  HAZARDS.forEach((hazard) => {
+    const card = document.createElement("div");
+    card.className = "hazard-card";
+
+    const hasActiveAlert =
+      hazard.indicators.length > 0 &&
+      hazard.indicators.some((ind) => activeAlertSignals.has(ind));
+
+    if (hasActiveAlert) {
+      card.classList.add("hazard-alert", "has-alert", "amber-border");
+      card.style.borderColor = "var(--amber)";
+    }
+
+    const titleEl = document.createElement("h3");
+    titleEl.className = "hazard-title";
+    titleEl.textContent = hazard.title;
+    card.appendChild(titleEl);
+
+    if (hazard.indicators && hazard.indicators.length > 0) {
+      const indicatorsDiv = document.createElement("div");
+      indicatorsDiv.className = "hazard-indicators";
+      indicatorsDiv.innerHTML = `<span class="hazard-label">Related indicators: </span><span class="hazard-signals">${hazard.indicators.join(", ")}</span>`;
+      card.appendChild(indicatorsDiv);
+    } else if (hazard.description) {
+      const descDiv = document.createElement("div");
+      descDiv.className = "hazard-description";
+      descDiv.textContent = hazard.description;
+      card.appendChild(descDiv);
+    }
+
+    hazardList.appendChild(card);
+  });
+
+  const note = document.createElement("div");
+  note.className = "hazard-note";
+  note.textContent = "Indicator-to-hazard mapping is a proposal for this prototype, not clinical guidance.";
+  hazardList.appendChild(note);
+}
+
 function render(member) {
   if (!member) return;
   console.log(member.name, member.days ? member.days.length : 0);
@@ -274,9 +356,10 @@ function render(member) {
 
   // Multi-signal deviation detection & Alerts
   const alertList = document.getElementById("alert-list");
-  if (alertList && typeof detectFn === "function") {
+  const alerts = typeof detectFn === "function" ? (detectFn(days) || []) : [];
+
+  if (alertList) {
     alertList.innerHTML = "";
-    const alerts = detectFn(days);
 
     if (!alerts || alerts.length === 0) {
       const emptyMsg = document.createElement("p");
@@ -486,6 +569,9 @@ function render(member) {
   // Refresh Comms panel
   renderComms();
   startCommsInterval();
+
+  // Render Mission Hazards
+  renderHazards(member, alerts);
 }
 
 function init() {
@@ -540,11 +626,13 @@ function init() {
     });
   }
 
-  // Initial comms rendering
+  // Initial comms and hazards rendering
   renderComms();
   startCommsInterval();
+  renderHazards(null, []);
 }
 
 init();
 
 window.render = render;
+window.renderHazards = renderHazards;

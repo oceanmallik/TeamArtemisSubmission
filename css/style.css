@@ -520,6 +520,53 @@ footer {
   line-height: 1.4;
 }
 
+/* Mission Hazards */
+.hazard-card {
+  background-color: rgba(13, 18, 32, 0.6);
+  border: 1px solid var(--line);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.hazard-card.hazard-alert,
+.hazard-card.has-alert,
+.hazard-card.amber-border {
+  border-color: var(--amber);
+}
+
+.hazard-title {
+  margin: 0 0 6px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.hazard-indicators,
+.hazard-description {
+  font-size: 0.85rem;
+  color: var(--dim);
+  line-height: 1.4;
+}
+
+.hazard-signals {
+  font-family: var(--mono);
+  color: var(--cyan);
+}
+
+.hazard-card.hazard-alert .hazard-signals,
+.hazard-card.amber-border .hazard-signals {
+  color: var(--amber);
+}
+
+.hazard-note {
+  font-size: 0.8rem;
+  color: var(--dim);
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: 12px;
+  line-height: 1.4;
+}
+
 @media (max-width: 900px) {
   #indicators {
     grid-template-columns: repeat(2, 1fr);
