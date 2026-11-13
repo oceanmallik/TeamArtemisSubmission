@@ -8,11 +8,28 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <style>
+    #offline-badge {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      background-color: rgba(92, 225, 230, 0.1);
+      border-radius: 9999px;
+      padding: 4px 10px;
+      line-height: 1;
+    }
+  </style>
 </head>
 <body>
   <header>
     AEGIS
     <select id="crew-select" aria-label="Crew member"></select>
+    <span id="offline-badge" class="offline-badge" style="display: none; margin-left: auto; margin-right: 8px;">Offline ready</span>
     <span id="link-badge">Connected</span>
   </header>
   <main id="app">
@@ -72,5 +89,51 @@
   <script src="js/store.js"></script>
   <script src="js/comms.js"></script>
   <script src="js/app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").then((registration) => {
+        function showOfflineBadge() {
+          const badge = document.getElementById("offline-badge");
+          if (badge) {
+            badge.style.display = "inline-flex";
+          }
+        }
+
+        if (registration.active || navigator.serviceWorker.controller) {
+          showOfflineBadge();
+        }
+
+        if (registration.installing) {
+          registration.installing.addEventListener("statechange", (e) => {
+            if (e.target.state === "installed" || e.target.state === "activated") {
+              showOfflineBadge();
+            }
+          });
+        }
+
+        registration.addEventListener("updatefound", () => {
+          const sw = registration.installing;
+          if (sw) {
+            sw.addEventListener("statechange", () => {
+              if (sw.state === "installed" || sw.state === "activated") {
+                showOfflineBadge();
+              }
+            });
+          }
+        });
+      }).catch((err) => {
+        console.error("ServiceWorker registration failed:", err);
+      });
+
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        if (event.data && event.data.type === "OFFLINE_READY") {
+          const badge = document.getElementById("offline-badge");
+          if (badge) {
+            badge.style.display = "inline-flex";
+          }
+        }
+      });
+    }
+  </script>
 </body>
 </html>

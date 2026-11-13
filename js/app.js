@@ -630,9 +630,38 @@ function init() {
   renderComms();
   startCommsInterval();
   renderHazards(null, []);
+
+  // Offline ready listener
+  initOfflineReady();
+}
+
+function initOfflineReady() {
+  if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+    function showBadge() {
+      const badge = document.getElementById("offline-badge");
+      if (badge) {
+        badge.style.display = "inline-flex";
+      }
+    }
+
+    if (navigator.serviceWorker.controller) {
+      showBadge();
+    }
+
+    if (navigator.serviceWorker.ready) {
+      navigator.serviceWorker.ready.then(() => showBadge()).catch(() => {});
+    }
+
+    navigator.serviceWorker.addEventListener("message", (e) => {
+      if (e.data && e.data.type === "OFFLINE_READY") {
+        showBadge();
+      }
+    });
+  }
 }
 
 init();
 
 window.render = render;
 window.renderHazards = renderHazards;
+window.initOfflineReady = initOfflineReady;
