@@ -88,11 +88,13 @@ function render(member) {
     }
   });
 
-  // Multi-signal deviation detection & Alerts
+  // Access store & detector
+  const store = window.AegisStore || (typeof AegisStore !== "undefined" ? AegisStore : null);
   const detectFn =
     (window.AegisDetect && window.AegisDetect.detect) ||
     (typeof AegisDetect !== "undefined" && AegisDetect.detect);
 
+  // Multi-signal deviation detection & Alerts
   const alertList = document.getElementById("alert-list");
   if (alertList && typeof detectFn === "function") {
     alertList.innerHTML = "";
@@ -185,6 +187,62 @@ function render(member) {
         details.appendChild(noteP);
 
         card.appendChild(details);
+
+        // Decision actions: Acknowledge, Dismiss, Escalate to Earth
+        const status = store && typeof store.getStatus === "function"
+          ? store.getStatus(member.id, alert.day)
+          : null;
+
+        const actionsDiv = document.createElement("div");
+        actionsDiv.className = "alert-actions";
+
+        const btnGroup = document.createElement("div");
+        btnGroup.className = "alert-btn-group";
+
+        const actionButtons = [
+          { label: "Acknowledge", action: "acknowledged" },
+          { label: "Dismiss", action: "dismissed" },
+          { label: "Escalate to Earth", action: "escalated" },
+        ];
+
+        actionButtons.forEach(({ label, action }) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `btn btn-${action}`;
+          btn.textContent = label;
+
+          if (status) {
+            btn.disabled = true;
+          } else {
+            btn.addEventListener("click", () => {
+              if (store && typeof store.logDecision === "function") {
+                store.logDecision({
+                  crewId: member.id,
+                  day: alert.day,
+                  action: action,
+                });
+                render(member);
+              }
+            });
+          }
+
+          btnGroup.appendChild(btn);
+        });
+
+        actionsDiv.appendChild(btnGroup);
+
+        if (status) {
+          const statusDiv = document.createElement("div");
+          statusDiv.className = `alert-status alert-status-${status}`;
+          const displayText =
+            status === "escalated"
+              ? "Queued for downlink"
+              : status.charAt(0).toUpperCase() + status.slice(1);
+          statusDiv.textContent = displayText;
+          actionsDiv.appendChild(statusDiv);
+        }
+
+        card.appendChild(actionsDiv);
         alertList.appendChild(card);
       });
     }
@@ -193,6 +251,48 @@ function render(member) {
     disclaimer.className = "alert-disclaimer";
     disclaimer.textContent = "Decision support only. Not a medical diagnosis.";
     alertList.appendChild(disclaimer);
+  }
+
+  // Decision log list: newest first (time, Day N, action)
+  const decisionLog = document.getElementById("decision-log");
+  if (decisionLog) {
+    decisionLog.innerHTML = "";
+    const decisions = store && typeof store.getDecisions === "function"
+      ? store.getDecisions(member.id)
+      : [];
+
+    if (!decisions || decisions.length === 0) {
+      const emptyLi = document.createElement("li");
+      emptyLi.className = "decision-empty";
+      emptyLi.textContent = "No decisions logged";
+      decisionLog.appendChild(emptyLi);
+    } else {
+      decisions.forEach((d) => {
+        const li = document.createElement("li");
+        li.className = `decision-item decision-${d.action}`;
+
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "decision-time";
+        const dateObj = new Date(d.time);
+        const formattedTime = !isNaN(dateObj.getTime())
+          ? dateObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+          : d.time;
+        timeSpan.textContent = formattedTime;
+
+        const daySpan = document.createElement("span");
+        daySpan.className = "decision-day";
+        daySpan.textContent = `Day ${d.day}`;
+
+        const actionSpan = document.createElement("span");
+        actionSpan.className = `decision-action decision-action-${d.action}`;
+        actionSpan.textContent = d.action;
+
+        li.appendChild(timeSpan);
+        li.appendChild(daySpan);
+        li.appendChild(actionSpan);
+        decisionLog.appendChild(li);
+      });
+    }
   }
 }
 

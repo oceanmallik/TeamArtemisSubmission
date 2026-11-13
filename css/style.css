@@ -263,6 +263,140 @@ footer {
   margin-top: 12px;
 }
 
+/* Action Buttons */
+.btn {
+  background-color: transparent;
+  color: var(--text);
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--line);
+}
+
+.btn-escalated:hover:not(:disabled) {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.alert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.alert-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.alert-status {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+}
+
+.alert-status-escalated {
+  color: var(--red);
+  border-color: var(--red);
+  background-color: rgba(252, 61, 33, 0.1);
+}
+
+.alert-status-acknowledged {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background-color: rgba(92, 225, 230, 0.1);
+}
+
+.alert-status-dismissed {
+  color: var(--dim);
+  border-color: var(--dim);
+  background-color: rgba(131, 146, 173, 0.1);
+}
+
+/* Decision Log */
+#decision-log {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.decision-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.85rem;
+}
+
+.decision-time {
+  font-family: var(--mono);
+  color: var(--dim);
+  font-size: 0.75rem;
+}
+
+.decision-day {
+  font-family: var(--mono);
+  color: var(--text);
+  font-size: 0.8rem;
+}
+
+.decision-action {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.decision-action-escalated {
+  color: var(--red);
+  background-color: rgba(252, 61, 33, 0.1);
+  border: 1px solid var(--red);
+}
+
+.decision-action-acknowledged {
+  color: var(--cyan);
+  background-color: rgba(92, 225, 230, 0.1);
+  border: 1px solid var(--cyan);
+}
+
+.decision-action-dismissed {
+  color: var(--dim);
+  background-color: rgba(131, 146, 173, 0.1);
+  border: 1px solid var(--dim);
+}
+
+.decision-empty {
+  color: var(--dim);
+  font-style: italic;
+  padding: 8px 0;
+}
+
 @media (max-width: 900px) {
   #indicators {
     grid-template-columns: repeat(2, 1fr);
