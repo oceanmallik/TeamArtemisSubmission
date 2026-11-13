@@ -1,6 +1,7 @@
 let crewData = null;
 const deliveredDownlinks = [];
 let commsIntervalStarted = false;
+let commsListenersAttached = false;
 let medicalOfficerAffected = false;
 
 const SIGNAL_NAMES = {
@@ -115,49 +116,33 @@ function renderComms() {
   let pendingList = document.getElementById("comms-pending-list");
   let deliveredList = document.getElementById("comms-delivered-list");
 
-  if (!delayInput) {
+  // Inject the downlinks display into #comms-body on first call.
+  // Guard on the list element, NOT on delayInput — the hidden sidebar inputs
+  // already satisfy getElementById("comms-delay"), which caused the old guard
+  // (!delayInput) to always be false and skip both injection and listener setup.
+  if (!document.getElementById("comms-pending-list")) {
     commsBody.innerHTML = `
-      <div class="comms-controls">
-        <div class="comms-slider-container">
-          <div class="comms-slider-header">
-            <span>One-way delay</span>
-            <span id="comms-delay-display" class="comms-delay-values"></span>
-          </div>
-          <input type="range" id="comms-delay" min="3" max="22" value="${comms.state.delayMin}">
-        </div>
-        <div class="comms-toggles">
-          <label>
-            <input type="checkbox" id="comms-blackout" ${comms.state.blackout ? "checked" : ""}>
-            Simulate blackout
-          </label>
-          <label>
-            <input type="checkbox" id="comms-medical-officer" ${medicalOfficerAffected ? "checked" : ""}>
-            Crew medical officer is the affected crew member
-          </label>
-          <label>
-            Demo speed:
-            <select id="comms-speed" class="comms-select">
-              <option value="1" ${comms.state.speed === 1 ? "selected" : ""}>1x</option>
-              <option value="60" ${comms.state.speed === 60 ? "selected" : ""}>60x</option>
-            </select>
-          </label>
-        </div>
-      </div>
       <div class="comms-subheading">Pending downlinks</div>
       <ul id="comms-pending-list" class="comms-list"></ul>
       <div class="comms-subheading">Delivered downlinks</div>
       <ul id="comms-delivered-list" class="comms-list"></ul>
       <p class="comms-note">Local analysis active. All monitoring works without an Earth link.</p>
     `;
+  }
 
-    delayInput = document.getElementById("comms-delay");
-    blackoutInput = document.getElementById("comms-blackout");
-    medicalOfficerInput = document.getElementById("comms-medical-officer");
-    speedSelect = document.getElementById("comms-speed");
-    delayDisplay = document.getElementById("comms-delay-display");
-    pendingList = document.getElementById("comms-pending-list");
-    deliveredList = document.getElementById("comms-delivered-list");
+  // Re-query after possible injection (picks up sidebar hidden inputs when present).
+  delayInput = document.getElementById("comms-delay");
+  blackoutInput = document.getElementById("comms-blackout");
+  medicalOfficerInput = document.getElementById("comms-medical-officer");
+  speedSelect = document.getElementById("comms-speed");
+  delayDisplay = document.getElementById("comms-delay-display");
+  pendingList = document.getElementById("comms-pending-list");
+  deliveredList = document.getElementById("comms-delivered-list");
 
+  // Register listeners exactly once on whichever inputs are in the DOM.
+  // The sidebar proxy (index.html) dispatches native input/change events on
+  // these same elements, so the guidance blocks update from sidebar controls too.
+  if (!commsListenersAttached && delayInput) {
     delayInput.addEventListener("input", (e) => {
       const val = parseInt(e.target.value, 10);
       comms.setDelay(val);
@@ -165,11 +150,13 @@ function renderComms() {
       updateGuidanceBlocks();
     });
 
-    blackoutInput.addEventListener("change", (e) => {
-      comms.setBlackout(e.target.checked);
-      renderComms();
-      updateGuidanceBlocks();
-    });
+    if (blackoutInput) {
+      blackoutInput.addEventListener("change", (e) => {
+        comms.setBlackout(e.target.checked);
+        renderComms();
+        updateGuidanceBlocks();
+      });
+    }
 
     if (medicalOfficerInput) {
       medicalOfficerInput.addEventListener("change", (e) => {
@@ -178,10 +165,14 @@ function renderComms() {
       });
     }
 
-    speedSelect.addEventListener("change", (e) => {
-      comms.setSpeed(Number(e.target.value));
-      renderComms();
-    });
+    if (speedSelect) {
+      speedSelect.addEventListener("change", (e) => {
+        comms.setSpeed(Number(e.target.value));
+        renderComms();
+      });
+    }
+
+    commsListenersAttached = true;
   }
 
   function updateDelayDisplay() {
