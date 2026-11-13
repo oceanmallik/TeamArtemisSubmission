@@ -378,12 +378,24 @@ function render(member) {
         badge.className = `badge badge-${alert.level}`;
         badge.textContent = alert.level;
 
+        const conf = alert.confidence || "low";
+        const confBadge = document.createElement("span");
+        confBadge.className = `badge badge-confidence badge-confidence-${conf} badge-conf-${conf}`;
+        confBadge.textContent = conf;
+
         const daySpan = document.createElement("span");
         daySpan.className = "alert-day";
         daySpan.textContent = `Flight day ${alert.day}`;
 
+        const dur = alert.durationDays || 1;
+        const durationSpan = document.createElement("span");
+        durationSpan.className = "alert-duration";
+        durationSpan.textContent = `Active for ${dur} ${dur === 1 ? "day" : "days"}`;
+
         header.appendChild(badge);
+        header.appendChild(confBadge);
         header.appendChild(daySpan);
+        header.appendChild(durationSpan);
 
         const summaryP = document.createElement("p");
         summaryP.className = "alert-summary";
@@ -446,6 +458,12 @@ function render(member) {
         noteP.textContent =
           "Flagged because 2 or more signals moved away from this person's own normal at the same time.";
         details.appendChild(noteP);
+
+        const confNoteP = document.createElement("p");
+        confNoteP.className = "alert-details-note alert-confidence-note";
+        confNoteP.textContent =
+          "Confidence is based on how many signals moved and for how long.";
+        details.appendChild(confNoteP);
 
         card.appendChild(details);
 
@@ -516,6 +534,49 @@ function render(member) {
         card.appendChild(actionsDiv);
         alertList.appendChild(card);
       });
+    }
+
+    // Signal watch block
+    const currentWatchFn =
+      (window.AegisDetect && window.AegisDetect.currentWatch) ||
+      (typeof AegisDetect !== "undefined" && AegisDetect.currentWatch);
+
+    if (typeof currentWatchFn === "function") {
+      const watch = currentWatchFn(days);
+      const watchBlock = document.createElement("div");
+      watchBlock.id = "signal-watch";
+      watchBlock.className = "signal-watch";
+
+      const watchTitle = document.createElement("h3");
+      watchTitle.className = "signal-watch-title";
+      watchTitle.textContent = "Signal watch";
+      watchBlock.appendChild(watchTitle);
+
+      const watchP = document.createElement("p");
+      watchP.className = "signal-watch-text";
+
+      if (!watch || !watch.signals || watch.signals.length === 0) {
+        watchP.textContent = "No signals moving away from baseline.";
+      } else {
+        const count = watch.signals.length;
+        const signalParts = watch.signals.map((s) => {
+          const name = SIGNAL_NAMES[s.name] || s.name;
+          const zSign = s.z >= 0 ? "+" : "";
+          const zVal = s.z.toFixed(1);
+          const devWord = Math.abs(Number(zVal)) === 1 ? "deviation" : "deviations";
+          const dayWord = s.daysOff === 1 ? "day" : "days";
+          return `${name} (${zSign}${zVal} ${devWord} for ${s.daysOff} ${dayWord})`;
+        });
+
+        if (!watch.alertActive) {
+          watchP.textContent = `${count} ${count === 1 ? "signal" : "signals"} moved: ${signalParts.join(", ")}. No alert yet, because one signal alone is not enough.`;
+        } else {
+          watchP.textContent = `${count} ${count === 1 ? "signal" : "signals"} moved: ${signalParts.join(", ")}. Alert episode active.`;
+        }
+      }
+
+      watchBlock.appendChild(watchP);
+      alertList.appendChild(watchBlock);
     }
 
     const disclaimer = document.createElement("div");

@@ -170,6 +170,27 @@ footer {
   background-color: rgba(252, 61, 33, 0.1);
 }
 
+.badge-confidence-low,
+.badge-conf-low {
+  color: var(--dim);
+  border: 1px solid var(--dim);
+  background-color: rgba(131, 146, 173, 0.1);
+}
+
+.badge-confidence-medium,
+.badge-conf-medium {
+  color: var(--amber);
+  border: 1px solid var(--amber);
+  background-color: rgba(255, 176, 32, 0.1);
+}
+
+.badge-confidence-high,
+.badge-conf-high {
+  color: var(--red);
+  border: 1px solid var(--red);
+  background-color: transparent;
+}
+
 /* Alert List & Cards */
 .alert-card {
   background-color: rgba(13, 18, 32, 0.6);
@@ -194,6 +215,12 @@ footer {
 }
 
 .alert-day {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--dim);
+}
+
+.alert-duration {
   font-family: var(--mono);
   font-size: 0.85rem;
   color: var(--dim);
@@ -273,6 +300,28 @@ footer {
   border-top: 1px solid var(--line);
   padding-top: 10px;
   margin-top: 12px;
+}
+
+/* Signal Watch Block */
+.signal-watch {
+  background-color: rgba(13, 18, 32, 0.6);
+  border: 1px solid var(--line);
+  padding: 12px 16px;
+  margin-top: 14px;
+}
+
+.signal-watch-title {
+  margin: 0 0 6px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.signal-watch-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--dim);
+  line-height: 1.4;
 }
 
 /* Action Buttons */
