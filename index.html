@@ -10,8 +10,61 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header></header>
-  <main id="app"></main>
-  <footer></footer>
+  <header>
+    AEGIS
+    <select id="crew-select" aria-label="Crew member"></select>
+    <span id="link-badge">Connected</span>
+  </header>
+  <main id="app">
+    <section id="indicators">
+      <div class="panel">
+        <h2>Heart rate</h2>
+        <div id="chart-hr"></div>
+      </div>
+      <div class="panel">
+        <h2>Blood pressure</h2>
+        <div id="chart-bp"></div>
+      </div>
+      <div class="panel">
+        <h2>Glucose</h2>
+        <div id="chart-glucose"></div>
+      </div>
+      <div class="panel">
+        <h2>Temperature</h2>
+        <div id="chart-temp"></div>
+      </div>
+      <div class="panel">
+        <h2>Sleep</h2>
+        <div id="chart-sleep"></div>
+      </div>
+      <div class="panel">
+        <h2>Mood</h2>
+        <div id="chart-mood"></div>
+      </div>
+      <div class="panel">
+        <h2>Activity</h2>
+        <div id="chart-activity"></div>
+      </div>
+    </section>
+    <section id="alerts" class="panel">
+      <h2>Alerts</h2>
+      <div id="alert-list"></div>
+    </section>
+    <section id="decisions" class="panel">
+      <h2>Decision log</h2>
+      <ul id="decision-log"></ul>
+    </section>
+    <section id="comms" class="panel">
+      <h2>Comms link</h2>
+      <div id="comms-body"></div>
+    </section>
+    <section id="hazards" class="panel">
+      <h2>Mission hazards</h2>
+      <div id="hazard-list"></div>
+    </section>
+  </main>
+  <footer>
+    Simulated data. Not a medical device.
+  </footer>
 </body>
 </html>
